@@ -1,0 +1,184 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Project extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'company_id',
+        'code',
+        'name',
+        'description',
+        'project_manager_id',
+        'supervisor_id',
+        'client_name',
+        'location',
+        'budget',
+        'contract_value',
+        'start_date',
+        'end_date',
+        'progress',
+        'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'budget' => 'decimal:2',
+            'contract_value' => 'decimal:2',
+            'progress' => 'integer',
+        ];
+    }
+
+    // حالات المشروع
+    public const STATUSES = [
+        'active' => 'قيد التنفيذ',
+        'on_hold' => 'متوقف مؤقتاً',
+        'completed' => 'مكتمل',
+        'cancelled' => 'ملغي',
+    ];
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'active' => __('app.status_active'),
+            'on_hold' => __('app.status_on_hold'),
+            'completed' => __('app.status_completed'),
+            'cancelled' => __('app.status_cancelled'),
+            default => $this->status,
+        };
+    }
+
+    public function statusColor(): string
+    {
+        return match ($this->status) {
+            'active' => 'emerald',
+            'on_hold' => 'amber',
+            'completed' => 'sky',
+            'cancelled' => 'rose',
+            default => 'slate',
+        };
+    }
+
+    // العلاقات
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function projectManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'project_manager_id');
+    }
+
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class)->orderBy('order')->orderBy('id');
+    }
+
+    public function members(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    public function budgetItems(): HasMany
+    {
+        return $this->hasMany(BudgetItem::class)->orderBy('order')->orderBy('id');
+    }
+
+    public function scheduleVersions(): HasMany
+    {
+        return $this->hasMany(ScheduleVersion::class)->latest();
+    }
+
+    // ===== إجماليات الميزانية =====
+
+    /** إجمالي المعتمد من بنود الميزانية (يرجع لميزانية المشروع إن لم توجد بنود) */
+    public function totalBudgeted(): float
+    {
+        $sum = (float) $this->budgetItems->sum('budgeted_amount');
+
+        return $sum > 0 ? $sum : (float) $this->budget;
+    }
+
+    public function totalCommitted(): float
+    {
+        return (float) $this->budgetItems->sum('committed_amount');
+    }
+
+    public function totalActual(): float
+    {
+        return (float) $this->budgetItems->sum('actual_amount');
+    }
+
+    public function budgetRemaining(): float
+    {
+        return $this->totalBudgeted() - $this->totalActual();
+    }
+
+    /** نسبة الصرف من إجمالي المعتمد */
+    public function budgetSpentPercent(): int
+    {
+        $budget = $this->totalBudgeted();
+
+        if ($budget <= 0) {
+            return 0;
+        }
+
+        return (int) round(($this->totalActual() / $budget) * 100);
+    }
+
+    public function isOverBudget(): bool
+    {
+        return $this->totalActual() > $this->totalBudgeted();
+    }
+
+    public function teamMembers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_members')
+            ->withPivot(['team_role', 'is_primary'])
+            ->withTimestamps();
+    }
+
+    // النطاقات (Scopes)
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        if (blank($term)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('code', 'like', "%{$term}%")
+                ->orWhere('client_name', 'like', "%{$term}%")
+                ->orWhere('location', 'like', "%{$term}%");
+        });
+    }
+}
