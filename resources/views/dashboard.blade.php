@@ -6,28 +6,42 @@
 @php
     $fmt = fn ($n) => number_format((float) $n);
     $rtl = app()->getLocale() === 'ar';
-    $roles = ['exec' => 'role_exec', 'pm' => 'role_pm', 'procurement' => 'role_procurement', 'mine' => 'role_mine'];
+    // تبويبات الأدوار وعناوينها
+    $roleTabs = [
+        'exec' => 'role_executive',
+        'pm' => 'role_pm',
+        'finance' => 'role_finance',
+        'engineer' => 'role_engineer',
+    ];
+    // اللوحات المسموح للمستخدم يشوفها حسب دوره ($homeView من المتحكّم)
+    $allowed = $homeView === 'all' ? array_keys($roleTabs) : [$homeView];
+    $showTabs = count($allowed) > 1;
+    $first = $allowed[0];
+    $vis = fn ($key) => $key === $first ? '' : 'hidden';
+    $heading = $showTabs ? __('app.exec_dashboard') : __('app.'.$roleTabs[$first]);
 @endphp
 
-{{-- الترويسة + تبويبات الأدوار --}}
+{{-- الترويسة --}}
 <div class="mb-5">
-    <div class="flex items-center gap-2 mb-1">
-        <h2 class="text-xl font-bold text-slate-800">{{ __('app.exec_dashboard') }}</h2>
-    </div>
+    <h2 class="text-xl font-bold text-slate-800">{{ $heading }}</h2>
     <p class="text-sm text-slate-400">{{ __('app.exec_subtitle') }} · {{ now()->translatedFormat('l، j F Y') }}</p>
 </div>
 
+{{-- تبويبات الأدوار (تظهر للأدمن فقط اللي يشوف الكل) --}}
+@if ($showTabs)
 <div class="flex gap-1 mb-5 bg-white rounded-xl border border-slate-200 p-1.5 w-fit overflow-x-auto">
-    @foreach ($roles as $key => $label)
+    @foreach ($allowed as $key)
         <button type="button" data-rtab="{{ $key }}" onclick="showRole('{{ $key }}')"
                 class="role-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm {{ $loop->first ? 'bg-brand-600 text-white font-semibold' : 'text-slate-500 hover:bg-slate-50' }}">
-            {{ __('app.'.$label) }}
+            {{ __('app.'.$roleTabs[$key]) }}
         </button>
     @endforeach
 </div>
+@endif
 
 {{-- ==================== المدير التنفيذي ==================== --}}
-<div data-role="exec" class="role-panel">
+@if (in_array('exec', $allowed))
+<div data-role="exec" class="role-panel {{ $vis('exec') }}">
     {{-- بطاقات المؤشرات المالية --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <div class="bg-white rounded-xl border border-slate-200 p-5">
@@ -139,8 +153,11 @@
     </div>
 </div>
 
+@endif
+
 {{-- ==================== مدير المشاريع ==================== --}}
-<div data-role="pm" class="role-panel hidden">
+@if (in_array('pm', $allowed))
+<div data-role="pm" class="role-panel {{ $vis('pm') }}">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <div class="bg-white rounded-xl border border-slate-200 p-5"><div class="text-3xl font-extrabold text-slate-800">{{ $fmt($stats['total']) }}</div><div class="text-sm text-slate-400 mt-1">{{ __('app.total_projects') }}</div></div>
         <div class="bg-white rounded-xl border border-slate-200 p-5"><div class="text-3xl font-extrabold text-emerald-600">{{ $fmt($stats['active']) }}</div><div class="text-sm text-slate-400 mt-1">{{ __('app.active_projects') }}</div></div>
@@ -181,17 +198,23 @@
     </div>
 </div>
 
-{{-- ==================== المشتريات ==================== --}}
-<div data-role="procurement" class="role-panel hidden">
-    <div class="bg-slate-50 rounded-xl border border-dashed border-slate-300 py-16 text-center">
-        <div class="text-4xl mb-3">🛒</div>
-        <p class="text-slate-500 font-medium">{{ __('app.procurement') }}</p>
-        <p class="text-slate-400 text-sm mt-1">{{ __('app.coming_soon') }}</p>
-    </div>
-</div>
+@endif
 
-{{-- ==================== مشاريعي ==================== --}}
-<div data-role="mine" class="role-panel hidden">
+{{-- ==================== المالية ==================== --}}
+@if (in_array('finance', $allowed))
+<div data-role="finance" class="role-panel {{ $vis('finance') }}">
+    @include('partials.finance')
+</div>
+@endif
+
+{{-- ==================== مهندس المشروع (مشاريعي) ==================== --}}
+@if (in_array('engineer', $allowed))
+<div data-role="engineer" class="role-panel {{ $vis('engineer') }}">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5">
+        <div class="bg-white rounded-xl border border-slate-200 p-5"><div class="text-slate-400 text-xs">{{ __('app.my_projects') }}</div><div class="text-2xl font-extrabold text-slate-800">{{ $myProjects->count() }}</div></div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5"><div class="text-slate-400 text-xs">{{ __('app.open_tasks') }}</div><div class="text-2xl font-extrabold text-amber-600">{{ $myTasksCount }}</div></div>
+        <a href="{{ route('my-tasks') }}" class="bg-brand-600 hover:bg-brand-700 text-white rounded-xl p-5 grid place-items-center text-center font-semibold text-sm">{{ __('app.my_tasks') }} ←</a>
+    </div>
     @if ($myProjects->count())
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($myProjects as $p)
@@ -209,6 +232,7 @@
         <div class="bg-white rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-400 text-sm">{{ __('app.no_my_projects') }}</div>
     @endif
 </div>
+@endif
 
 @push('scripts')
 <script>

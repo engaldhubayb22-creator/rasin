@@ -54,31 +54,60 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
-    // مساعدات الأدوار (نظام أدوار مبسّط عبر عمود role)
+    // ===== نظام الأدوار =====
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_EXECUTIVE = 'executive';
+    public const ROLE_PM = 'project_manager';
+    public const ROLE_ENGINEER = 'engineer';
+    public const ROLE_FINANCE = 'finance';
+
+    /** الأدوار ومفاتيح الترجمة */
+    public static function roles(): array
+    {
+        return [
+            self::ROLE_ADMIN => 'role_admin',
+            self::ROLE_EXECUTIVE => 'role_executive',
+            self::ROLE_PM => 'role_pm',
+            self::ROLE_ENGINEER => 'role_engineer',
+            self::ROLE_FINANCE => 'role_finance',
+        ];
+    }
+
     public function hasRole(string|array $roles): bool
     {
-        $roles = (array) $roles;
-
-        return in_array($this->role, $roles, true);
+        return in_array($this->role, (array) $roles, true);
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === self::ROLE_ADMIN;
     }
 
     public function roleLabel(): string
     {
-        return self::roles()[$this->role] ?? $this->role;
+        return __('app.'.(self::roles()[$this->role] ?? 'role_admin'));
     }
 
-    public static function roles(): array
+    /** أي لوحة رئيسية يشوفها المستخدم حسب دوره */
+    public function homeView(): string
     {
-        return [
-            'admin' => 'مدير النظام',
-            'projects_manager' => 'مدير إدارة المشاريع',
-            'project_manager' => 'مدير مشروع',
-            'employee' => 'موظف',
-        ];
+        return match ($this->role) {
+            self::ROLE_ADMIN => 'all',        // المالك/الأدمن يشوف الكل
+            self::ROLE_EXECUTIVE => 'exec',
+            self::ROLE_PM => 'pm',
+            self::ROLE_FINANCE => 'finance',
+            self::ROLE_ENGINEER => 'engineer',
+            default => 'engineer',
+        };
+    }
+
+    public function canSeeFinance(): bool
+    {
+        return $this->hasRole([self::ROLE_ADMIN, self::ROLE_EXECUTIVE, self::ROLE_FINANCE]);
+    }
+
+    public function canSeeReports(): bool
+    {
+        return $this->hasRole([self::ROLE_ADMIN, self::ROLE_EXECUTIVE, self::ROLE_PM, self::ROLE_FINANCE]);
     }
 }

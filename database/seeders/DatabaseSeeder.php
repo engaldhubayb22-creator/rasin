@@ -39,8 +39,20 @@ class DatabaseSeeder extends Seeder
 
         $eng = User::firstOrCreate(['email' => 'eng@rasin.sa'], [
             'company_id' => $company->id, 'name' => 'خالد المهندس',
-            'password' => Hash::make('password'), 'role' => 'employee',
+            'password' => Hash::make('password'), 'role' => 'engineer',
             'job_title' => 'مهندس موقع', 'is_active' => true,
+        ]);
+
+        User::firstOrCreate(['email' => 'ceo@rasin.sa'], [
+            'company_id' => $company->id, 'name' => 'فهد التنفيذي',
+            'password' => Hash::make('password'), 'role' => 'executive',
+            'job_title' => 'المدير التنفيذي', 'is_active' => true,
+        ]);
+
+        User::firstOrCreate(['email' => 'finance@rasin.sa'], [
+            'company_id' => $company->id, 'name' => 'نورة المالية',
+            'password' => Hash::make('password'), 'role' => 'finance',
+            'job_title' => 'محاسب', 'is_active' => true,
         ]);
 
         $samples = [

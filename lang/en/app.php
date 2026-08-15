@@ -60,6 +60,24 @@ return [
     'no_vendor_data' => 'No vendor data yet.',
     'no_my_projects' => 'No projects assigned to you yet.',
 
+    // Roles
+    'role_admin' => 'System Admin',
+    'role_executive' => 'Executive',
+    'role_engineer' => 'Project Engineer',
+    'role_finance' => 'Finance',
+    'my_projects' => 'My Projects',
+
+    // Finance & Reports
+    'finance_subtitle' => 'Financial overview across projects',
+    'budget_by_project' => 'Budget by project',
+    'reports_subtitle' => 'Project & performance reports',
+    'report_completed' => 'Completed projects',
+    'report_active' => 'Active projects status',
+    'report_finance' => 'Financial summary',
+    'report_delayed' => 'Delayed activities',
+    'no_completed_projects' => 'No completed projects yet.',
+    'no_delayed' => 'No delayed activities.',
+
     // Actions
     'save' => 'Save',
     'save_changes' => 'Save changes',

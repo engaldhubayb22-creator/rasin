@@ -67,23 +67,28 @@
                 $projActive = str_starts_with($r ?? '', 'projects') || str_starts_with($r ?? '', 'tasks') || str_starts_with($r ?? '', 'activities') || str_starts_with($r ?? '', 'budget') || str_starts_with($r ?? '', 'members');
             @endphp
 
+            @php $user = auth()->user(); @endphp
             {!! $link(route('dashboard'), __('app.home'), $ic['home'], $r === 'dashboard') !!}
             {!! $link(route('my-tasks'), __('app.task_center'), $ic['tasks'], $r === 'my-tasks') !!}
             {!! $link(route('projects.index'), __('app.projects'), $ic['projects'], $projActive) !!}
+            @if ($user && $user->canSeeFinance())
+                {!! $link(route('finance'), __('app.finance'), $ic['finance'], $r === 'finance') !!}
+            @endif
+            @if ($user && $user->canSeeReports())
+                {!! $link(route('reports'), __('app.reports'), $ic['reports'], $r === 'reports') !!}
+            @endif
 
+            {{-- وحدات مخفية خلف مفاتيح التشغيل (config/features.php) --}}
+            @php $anyModule = config('features.procurement') || config('features.contracts') || config('features.administration') || config('features.settings'); @endphp
+            @if ($anyModule)
             <div class="pt-3 mt-2 border-t border-white/10">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wide text-slate-400/70">{{ __('app.modules') }}</div>
-                {!! $soon(__('app.procurement'), $ic['cart']) !!}
-                {!! $soon(__('app.contracts'), $ic['contracts']) !!}
-                {!! $soon(__('app.finance'), $ic['finance']) !!}
-                {!! $soon(__('app.reports'), $ic['reports']) !!}
+                @if (config('features.procurement')) {!! $soon(__('app.procurement'), $ic['cart']) !!} @endif
+                @if (config('features.contracts')) {!! $soon(__('app.contracts'), $ic['contracts']) !!} @endif
+                @if (config('features.administration')) {!! $soon(__('app.administration'), $ic['admin']) !!} @endif
+                @if (config('features.settings')) {!! $soon(__('app.settings'), $ic['settings']) !!} @endif
             </div>
-
-            <div class="pt-3 mt-2 border-t border-white/10">
-                <div class="px-3 pb-1 text-[10px] uppercase tracking-wide text-slate-400/70">{{ __('app.system') }}</div>
-                {!! $soon(__('app.administration'), $ic['admin']) !!}
-                {!! $soon(__('app.settings'), $ic['settings']) !!}
-            </div>
+            @endif
         </nav>
 
         <div class="p-3 border-t border-white/10 text-[11px] text-slate-400">

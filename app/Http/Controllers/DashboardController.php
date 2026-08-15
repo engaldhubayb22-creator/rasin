@@ -81,18 +81,34 @@ class DashboardController extends Controller
         $byStatus = $projects->groupBy('status')->map->count()->all();
 
         // مشاريعي (المستخدم مدير أو مشرف)
-        $userId = $request->user()->id;
+        $user = $request->user();
+        $userId = $user->id;
         $myProjects = $projects->filter(
             fn ($p) => $p->project_manager_id === $userId || $p->supervisor_id === $userId
         )->values();
 
         $recentProjects = $projects->sortByDesc('id')->take(6)->values();
 
+        // تفصيل مالي لكل مشروع (للوحة المالية)
+        $projectsFinance = $projects->map(fn ($p) => [
+            'name' => $p->name,
+            'code' => $p->code,
+            'budgeted' => $p->totalBudgeted(),
+            'committed' => $p->totalCommitted(),
+            'actual' => $p->totalActual(),
+            'remaining' => $p->budgetRemaining(),
+            'spent' => $p->budgetSpentPercent(),
+            'over' => $p->isOverBudget(),
+        ])->sortByDesc('budgeted')->values();
+
         return view('dashboard', [
+            'homeView' => $user->homeView(),
             'stats' => $stats,
             'byStatus' => $byStatus,
             'recentProjects' => $recentProjects,
             'myProjects' => $myProjects,
+            'myTasksCount' => \App\Models\Task::where('assigned_to', $userId)->whereNotIn('status', ['completed'])->count(),
+            'projectsFinance' => $projectsFinance,
             'fin' => [
                 'active_value' => $activeValue,
                 'active_count' => $activeProjects->count(),

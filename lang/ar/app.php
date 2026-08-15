@@ -60,6 +60,24 @@ return [
     'no_vendor_data' => 'لا توجد بيانات موردين بعد.',
     'no_my_projects' => 'لا توجد مشاريع مسندة إليك حالياً.',
 
+    // الأدوار
+    'role_admin' => 'مدير النظام',
+    'role_executive' => 'مدير تنفيذي',
+    'role_engineer' => 'مهندس مشروع',
+    'role_finance' => 'مالية',
+    'my_projects' => 'مشاريعي',
+
+    // المالية والتقارير
+    'finance_subtitle' => 'نظرة مالية شاملة على المشاريع',
+    'budget_by_project' => 'ميزانيات المشاريع',
+    'reports_subtitle' => 'تقارير المشاريع والأداء',
+    'report_completed' => 'المشاريع المنجزة',
+    'report_active' => 'حالة المشاريع النشطة',
+    'report_finance' => 'ملخّص مالي',
+    'report_delayed' => 'الأنشطة المتأخرة',
+    'no_completed_projects' => 'لا توجد مشاريع منجزة بعد.',
+    'no_delayed' => 'لا توجد أنشطة متأخرة.',
+
     // أفعال
     'save' => 'حفظ',
     'save_changes' => 'حفظ التغييرات',
