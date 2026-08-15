@@ -143,6 +143,27 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->seedSchedule($project, $pm);
+
+        // متطلبات المشروع (بنود مرتبطة بمسؤولين)
+        $reqs = [
+            ['code' => $project->code.'-R01', 'title' => 'اعتماد مخطط مدخل العمارة', 'department' => 'projects_mgmt', 'assigned_to' => $eng->id, 'status' => 'urgent', 'due' => 4, 'note' => 'بانتظار اعتماد الاستشاري'],
+            ['code' => $project->code.'-R02', 'title' => 'توريد وتركيب اللوحات الديكورية', 'department' => 'procurement', 'assigned_to' => $pm->id, 'status' => 'in_progress', 'due' => 10, 'note' => ''],
+            ['code' => $project->code.'-R03', 'title' => 'متابعة طلب توصيل الكهرباء', 'department' => 'procurement', 'assigned_to' => $pm->id, 'status' => 'pending', 'due' => -3, 'note' => 'تم إصدار الاتفاقية'],
+            ['code' => $project->code.'-R04', 'title' => 'تعميد مقاول النظافة', 'department' => 'projects_mgmt', 'assigned_to' => $eng->id, 'status' => 'completed', 'due' => -8, 'note' => ''],
+            ['code' => $project->code.'-R05', 'title' => 'حل مشكلة صفاية البلكونة', 'department' => 'projects_mgmt', 'assigned_to' => $eng->id, 'status' => 'urgent', 'due' => -1, 'note' => 'جاري المعالجة'],
+        ];
+        foreach ($reqs as $i => $rq) {
+            $project->requirements()->create([
+                'code' => $rq['code'],
+                'title' => $rq['title'],
+                'note' => $rq['note'] ?: null,
+                'department' => $rq['department'],
+                'assigned_to' => $rq['assigned_to'],
+                'status' => $rq['status'],
+                'due_date' => Carbon::now()->addDays($rq['due']),
+                'order' => ($i + 1) * 10,
+            ]);
+        }
     }
 
     /** نسخة جدول زمني مع أنشطة WBS (مراحل + أنشطة، حرجة/متأخرة) */

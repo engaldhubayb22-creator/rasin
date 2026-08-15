@@ -5,11 +5,32 @@
 @section('content')
 <p class="text-sm text-slate-400 mb-5">{{ __('app.my_tasks_subtitle') }}</p>
 
+{{-- المتطلبات المسندة إليّ (مرتبطة من متابعة المتطلبات) --}}
+@if ($myRequirements->count())
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-5">
+        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2">📋 {{ __('app.my_requirements') }}</h2>
+            <a href="{{ route('requirements.index') }}" class="text-xs text-brand-600 hover:text-brand-700 font-medium">{{ __('app.view_all') }}</a>
+        </div>
+        <div class="divide-y divide-slate-100">
+            @foreach ($myRequirements as $r)
+                <div class="px-5 py-3 flex items-center gap-3 flex-wrap {{ $r->isOverdue() ? 'bg-rose-50/30' : '' }}">
+                    <div class="flex-1 min-w-[160px]">
+                        <div class="font-semibold text-slate-800 text-sm">{{ $r->title }}</div>
+                        <div class="text-xs text-slate-400">{{ $r->project->name ?? '—' }}@if($r->due_date) · <span class="{{ $r->isOverdue() ? 'text-rose-600 font-semibold' : '' }}">{{ $r->due_date->format('Y-m-d') }}</span>@endif</div>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full bg-{{ $r->statusColor() }}-50 text-{{ $r->statusColor() }}-700">{{ $r->statusLabel() }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
 @php $order = ['in_progress','pending','blocked','completed']; @endphp
 
 @php $hasAny = collect($tasksByStatus)->flatten()->count() > 0; @endphp
 
-@if ($hasAny)
+@if ($hasAny || $myRequirements->count())
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         @foreach ($order as $status)
             @php $group = $tasksByStatus[$status] ?? collect(); @endphp

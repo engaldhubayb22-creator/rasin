@@ -6,6 +6,7 @@ use App\Http\Controllers\BudgetItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\ScheduleVersionController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\ProjectController;
@@ -45,6 +46,12 @@ Route::middleware('auth')->group(function () {
     // المالية والتقارير (حسب الصلاحية)
     Route::get('/finance', [FinanceController::class, 'index'])->name('finance');
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+
+    // متابعة المتطلبات (مرتبطة بمهام الأعضاء)
+    Route::get('/requirements', [RequirementController::class, 'index'])->name('requirements.index');
+    Route::post('projects/{project}/requirements', [RequirementController::class, 'store'])->name('requirements.store');
+    Route::patch('requirements/{requirement}', [RequirementController::class, 'update'])->name('requirements.update');
+    Route::delete('requirements/{requirement}', [RequirementController::class, 'destroy'])->name('requirements.destroy');
 
     // المشاريع
     Route::resource('projects', ProjectController::class);

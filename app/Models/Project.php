@@ -113,6 +113,11 @@ class Project extends Model
         return $this->hasMany(ScheduleVersion::class)->latest();
     }
 
+    public function requirements(): HasMany
+    {
+        return $this->hasMany(Requirement::class)->orderBy('order')->orderBy('id');
+    }
+
     // ===== إجماليات الميزانية =====
 
     /** إجمالي المعتمد من بنود الميزانية (يرجع لميزانية المشروع إن لم توجد بنود) */
