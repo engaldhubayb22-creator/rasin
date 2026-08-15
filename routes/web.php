@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BudgetItemController;
+use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\ReportsController;
@@ -67,6 +68,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('projects/{project}/members', [ProjectMemberController::class, 'store'])->name('members.store');
     Route::delete('projects/{project}/members/{member}', [ProjectMemberController::class, 'destroy'])->name('members.destroy');
+
+    // التشك لست (متطلبات المشروع الأساسية)
+    Route::post('projects/{project}/checklist/generate', [ChecklistItemController::class, 'generate'])->name('checklist.generate');
+    Route::post('projects/{project}/checklist', [ChecklistItemController::class, 'store'])->name('checklist.store');
+    Route::patch('checklist/{checklistItem}', [ChecklistItemController::class, 'update'])->name('checklist.update');
+    Route::delete('checklist/{checklistItem}', [ChecklistItemController::class, 'destroy'])->name('checklist.destroy');
 
     // الميزانية (بنود التكلفة)
     Route::post('projects/{project}/budget', [BudgetItemController::class, 'store'])->name('budget.store');

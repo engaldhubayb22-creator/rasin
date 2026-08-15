@@ -164,6 +164,19 @@ class DatabaseSeeder extends Seeder
                 'order' => ($i + 1) * 10,
             ]);
         }
+
+        // توليد التشك لست ثم محاكاة بعض التقدّم
+        $project->generateChecklist();
+        $project->load('checklistItems');
+        foreach ($project->checklistItems as $idx => $ci) {
+            $ci->update([
+                'assigned_to' => $idx % 2 ? $eng->id : $pm->id,
+                'planned_date' => Carbon::now()->addDays(($idx * 7) - 40),
+                'status' => $idx < 6 ? 'completed' : ($idx < 8 ? 'pending_approval' : ($idx < 11 ? 'in_progress' : 'not_started')),
+                'actual_date' => $idx < 6 ? Carbon::now()->subDays(30 - $idx * 3) : null,
+                'approved_by' => $idx < 6 ? $pm->id : null,
+            ]);
+        }
     }
 
     /** نسخة جدول زمني مع أنشطة WBS (مراحل + أنشطة، حرجة/متأخرة) */

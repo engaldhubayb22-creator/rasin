@@ -10,11 +10,11 @@
     $tabs = [
         'overview'    => ['tab_overview', true],
         'tasks'       => ['tab_tasks', true],
+        'checklist'   => ['tab_checklist', true],
         'schedule'    => ['tab_schedule', true],
         'budget'      => ['tab_budget', true],
         'team'        => ['tab_team', true],
         'drawings'    => ['tab_drawings', false],
-        'checklist'   => ['tab_checklist', false],
         'procurement' => ['tab_procurement', false],
         'approvals'   => ['tab_approvals', false],
     ];
@@ -382,8 +382,13 @@
     @endforelse
 </div>
 
+{{-- ==================== التشك لست ==================== --}}
+<div data-panel="checklist" class="tab-panel hidden">
+    @include('projects.partials.checklist')
+</div>
+
 {{-- ==================== تبويبات قادمة ==================== --}}
-@foreach (['drawings','checklist','procurement','approvals'] as $ph)
+@foreach (['drawings','procurement','approvals'] as $ph)
     <div data-panel="{{ $ph }}" class="tab-panel hidden">
         <div class="bg-slate-50 rounded-xl border border-dashed border-slate-300 py-16 text-center">
             <div class="text-4xl mb-3">🚧</div>

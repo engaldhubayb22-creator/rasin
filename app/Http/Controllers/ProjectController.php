@@ -46,6 +46,9 @@ class ProjectController extends Controller
 
         $project = Project::create($data);
 
+        // توليد التشك لست تلقائياً من القالب الموحّد
+        $project->generateChecklist();
+
         return redirect()
             ->route('projects.show', $project)
             ->with('success', 'تم إنشاء المشروع بنجاح.');
@@ -62,6 +65,8 @@ class ProjectController extends Controller
             'budgetItems',
             'scheduleVersions.uploader',
             'scheduleVersions.activities',
+            'checklistItems.assignee',
+            'checklistItems.approver',
         ]);
 
         $taskStats = [
@@ -117,6 +122,7 @@ class ProjectController extends Controller
         return $request->validate([
             'code' => ['nullable', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
+            'type' => ['nullable', 'in:'.implode(',', array_keys(Project::TYPES))],
             'description' => ['nullable', 'string'],
             'project_manager_id' => ['nullable', 'exists:users,id'],
             'supervisor_id' => ['nullable', 'exists:users,id'],

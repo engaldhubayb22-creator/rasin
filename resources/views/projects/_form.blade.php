@@ -23,6 +23,16 @@
                 <input type="text" name="code" value="{{ $val('code') }}" placeholder="PRJ-2026-001" class="w-full text-sm rounded-lg border border-slate-300 focus:border-brand-500 focus:ring-brand-500 px-3 py-2.5">
             </div>
             <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1.5">{{ __('app.project_type') }}</label>
+                <select name="type" class="w-full text-sm rounded-lg border border-slate-300 focus:border-brand-500 focus:ring-brand-500 px-3 py-2.5">
+                    <option value="">{{ __('app.select') }}</option>
+                    @foreach (\App\Models\Project::TYPES as $k => $lbl)
+                        <option value="{{ $k }}" @selected((string) $val('type') === $k)>{{ __('app.'.$lbl) }}</option>
+                    @endforeach
+                </select>
+                @if (! ($project->exists ?? false))<p class="text-[11px] text-slate-400 mt-1">{{ __('app.project_type_hint') }}</p>@endif
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1.5">{{ __('app.client_name') }}</label>
                 <input type="text" name="client_name" value="{{ $val('client_name') }}" class="w-full text-sm rounded-lg border border-slate-300 focus:border-brand-500 focus:ring-brand-500 px-3 py-2.5">
             </div>
