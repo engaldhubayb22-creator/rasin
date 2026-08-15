@@ -11,8 +11,8 @@
 
 @include('partials.acn-styles')
 <style>
-    .cl-thead, .cl-row { display:grid; grid-template-columns:32px minmax(220px,1fr) 130px 105px 105px 120px 140px 130px 40px; align-items:center; }
-    @media (max-width:1100px){ .cl-thead,.cl-row{ grid-template-columns:32px 1fr 120px 120px 40px } .cl-thead>:nth-child(4),.cl-thead>:nth-child(5),.cl-thead>:nth-child(7),.cl-thead>:nth-child(8),.cl-row>:nth-child(4),.cl-row>:nth-child(5),.cl-row>:nth-child(7),.cl-row>:nth-child(8){display:none} }
+    .cl-tbl .acn-thead, .cl-tbl .acn-row { display:grid; grid-template-columns:32px minmax(220px,1fr) 130px 105px 105px 120px 140px 130px 40px; align-items:center; }
+    @media (max-width:1100px){ .cl-tbl .acn-thead, .cl-tbl .acn-row{ grid-template-columns:32px 1fr 120px 120px 40px } .cl-tbl .acn-thead>:nth-child(4),.cl-tbl .acn-thead>:nth-child(5),.cl-tbl .acn-thead>:nth-child(7),.cl-tbl .acn-thead>:nth-child(8),.cl-tbl .acn-row>:nth-child(4),.cl-tbl .acn-row>:nth-child(5),.cl-tbl .acn-row>:nth-child(7),.cl-tbl .acn-row>:nth-child(8){display:none} }
 </style>
 
 <div class="acn-wrap">
@@ -59,8 +59,8 @@
         </div>
 
         {{-- الجدول مجمّع حسب المرحلة --}}
-        <div class="acn-table">
-            <div class="acn-thead cl-thead">
+        <div class="acn-table cl-tbl">
+            <div class="acn-thead">
                 <div><input type="checkbox" onclick="document.querySelectorAll('.cl-chk').forEach(c=>c.checked=this.checked)"></div>
                 <div>{{ __('app.req_item') }}</div>
                 <div>{{ __('app.req_responsible') }}</div>

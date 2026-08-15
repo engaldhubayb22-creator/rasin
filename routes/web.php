@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/finance', [FinanceController::class, 'index'])->name('finance');
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
 
+    // مركز متابعة التشك لست (عبر كل المشاريع)
+    Route::get('/checklist-center', [ChecklistItemController::class, 'center'])->name('checklist.center');
+
     // متابعة المتطلبات (مرتبطة بمهام الأعضاء)
     Route::get('/requirements', [RequirementController::class, 'index'])->name('requirements.index');
     Route::post('projects/{project}/requirements', [RequirementController::class, 'store'])->name('requirements.store');
