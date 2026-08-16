@@ -107,6 +107,8 @@ return [
     'req_created' => 'Item added.',
     'req_updated' => 'Item updated.',
     'req_deleted' => 'Item deleted.',
+    'saved' => 'Saved',
+    'save_failed' => 'Save failed',
 
     // Actions
     'save' => 'Save',
@@ -229,6 +231,20 @@ return [
     'cl_not_applicable' => 'N/A',
     'checklist_center' => 'Checklist Center',
     'checklist_center_sub' => 'Track checklist items across all projects',
+
+    // Checklist template administration
+    'admin_checklist_template' => 'Unified Checklist Template',
+    'admin_checklist_template_sub' => 'Items auto-created for every new project',
+    'tpl_notice' => 'This template is applied automatically whenever a new project is created. Edits here affect new projects only; existing projects each keep an independent copy they edit from their own checklist page.',
+    'tpl_new_item' => 'New item',
+    'tpl_reset' => 'Restore default template',
+    'tpl_reset_confirm' => 'This resets the template to its default and discards your edits. Existing projects are not affected. Continue?',
+    'tpl_reset_done' => 'Default template restored.',
+    'tpl_items_count' => 'items',
+    'tpl_created' => 'Item added to the template.',
+    'tpl_updated' => 'Template updated.',
+    'tpl_deleted' => 'Item removed from the template.',
+
     'all_phases' => 'All phases',
     'no_checklist_items' => 'No checklist items yet.',
     'tab_attachments' => 'Attachments',

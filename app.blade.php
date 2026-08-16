@@ -24,6 +24,10 @@
         body { font-family: 'Cairo', sans-serif; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        #acn-toast{position:fixed;bottom:20px;inset-inline-start:20px;background:#2e7d32;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.15);opacity:0;transform:translateY(10px);transition:.2s;z-index:60;pointer-events:none}
+        #acn-toast.show{opacity:1;transform:none}
+        #acn-toast.err{background:#c62828}
+        form.acn-ajax.saving{opacity:.55}
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
@@ -80,6 +84,9 @@
             @endif
             @if ($user && $user->canSeeReports())
                 {!! $link(route('reports'), __('app.reports'), $ic['reports'], $r === 'reports') !!}
+            @endif
+            @if ($user && $user->isAdmin())
+                {!! $link(route('admin.checklist-template.index'), __('app.administration'), $ic['admin'], str_starts_with($r ?? '', 'admin')) !!}
             @endif
 
             {{-- وحدات مخفية خلف مفاتيح التشغيل (config/features.php) --}}
@@ -155,6 +162,53 @@
         document.getElementById('sidebar').classList.toggle('{{ $hideSide }}');
         document.getElementById('overlay').classList.toggle('hidden');
     }
+
+    /* حفظ فوري (AJAX) لأي نموذج يحمل class="acn-ajax" — بدون مغادرة الصفحة */
+    (function () {
+        var meta = document.querySelector('meta[name=csrf-token]');
+        var SMAP = { not_started:'s-pending', in_progress:'s-in_progress', pending_approval:'s-urgent', completed:'s-completed', not_applicable:'s-cancelled', urgent:'s-urgent', pending:'s-pending', open:'s-pending', done:'s-completed' };
+        var SAVED = @json(__('app.saved'));
+        var FAILED = @json(__('app.save_failed'));
+
+        function toast(msg, ok) {
+            var t = document.getElementById('acn-toast');
+            if (!t) { t = document.createElement('div'); t.id = 'acn-toast'; document.body.appendChild(t); }
+            t.textContent = msg;
+            t.className = 'show' + (ok ? '' : ' err');
+            clearTimeout(t._h);
+            t._h = setTimeout(function () { t.className = ''; }, 1600);
+        }
+
+        document.addEventListener('submit', function (e) {
+            var f = e.target;
+            if (!f.classList || !f.classList.contains('acn-ajax')) return;
+            e.preventDefault();
+            f.classList.add('saving');
+            fetch(f.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': meta ? meta.content : ''
+                },
+                body: new FormData(f)
+            })
+            .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+            .then(function (d) {
+                var sel = f.querySelector('select[name=status]');
+                if (sel) {
+                    var cls = (d && d.status_class) || SMAP[sel.value] || 's-pending';
+                    sel.className = sel.className.replace(/\bs-[a-z_]+\b/g, '').replace(/\s+/g, ' ').trim();
+                    sel.classList.add(cls);
+                }
+                var act = f.querySelector('input[name=actual_date]');
+                if (act && d && d.actual_date && !act.value) act.value = d.actual_date;
+                toast(SAVED, true);
+            })
+            .catch(function () { toast(FAILED, false); })
+            .finally(function () { f.classList.remove('saving'); });
+        });
+    })();
 </script>
 @stack('scripts')
 </body>

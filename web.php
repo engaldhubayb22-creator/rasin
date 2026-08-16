@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminChecklistTemplateController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BudgetItemController;
 use App\Http\Controllers\ChecklistItemController;
@@ -89,6 +90,13 @@ Route::middleware('auth')->group(function () {
     Route::get('projects/{project}/schedule/{version}/gantt', [ScheduleVersionController::class, 'gantt'])->name('schedule.gantt');
     Route::post('projects/{project}/schedule/{version}/decide', [ScheduleVersionController::class, 'decide'])->name('schedule.decide');
     Route::delete('projects/{project}/schedule/{version}', [ScheduleVersionController::class, 'destroy'])->name('schedule.destroy');
+
+    // ===== الإدارة (المدير فقط) — قالب التشك لست الموحّد =====
+    Route::get('/admin/checklist-template', [AdminChecklistTemplateController::class, 'index'])->name('admin.checklist-template.index');
+    Route::post('/admin/checklist-template', [AdminChecklistTemplateController::class, 'store'])->name('admin.checklist-template.store');
+    Route::patch('/admin/checklist-template/{templateItem}', [AdminChecklistTemplateController::class, 'update'])->name('admin.checklist-template.update');
+    Route::delete('/admin/checklist-template/{templateItem}', [AdminChecklistTemplateController::class, 'destroy'])->name('admin.checklist-template.destroy');
+    Route::post('/admin/checklist-template/reset', [AdminChecklistTemplateController::class, 'reset'])->name('admin.checklist-template.reset');
 
     /*
     |----------------------------------------------------------------------

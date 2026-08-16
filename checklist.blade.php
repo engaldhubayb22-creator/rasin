@@ -89,32 +89,32 @@
                             @if ($it->notes)<div class="acn-notes">{{ $it->notes }}</div>@endif
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <select name="assigned_to" class="acn-inline-select" onchange="this.form.submit()"><option value="">{{ __('app.unassigned') }}</option>
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <select name="assigned_to" class="acn-inline-select" onchange="this.form.requestSubmit()"><option value="">{{ __('app.unassigned') }}</option>
                                     @foreach ($managers as $u)<option value="{{ $u->id }}" @selected($it->assigned_to==$u->id)>{{ $u->name }}</option>@endforeach</select>
                             </form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <input type="date" name="planned_date" value="{{ $clDate($it->planned_date) }}" class="acn-inline-date {{ $it->isOverdue() ? 'overdue' : '' }}" onchange="this.form.submit()"></form>
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <input type="date" name="planned_date" value="{{ $clDate($it->planned_date) }}" class="acn-inline-date {{ $it->isOverdue() ? 'overdue' : '' }}" onchange="this.form.requestSubmit()"></form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <input type="date" name="actual_date" value="{{ $clDate($it->actual_date) }}" class="acn-inline-date" onchange="this.form.submit()"></form>
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <input type="date" name="actual_date" value="{{ $clDate($it->actual_date) }}" class="acn-inline-date" onchange="this.form.requestSubmit()"></form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <select name="status" class="acn-inline-select acn-status-select {{ $it->statusClass() }}" onchange="this.form.submit()">
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <select name="status" class="acn-inline-select acn-status-select {{ $it->statusClass() }}" onchange="this.form.requestSubmit()">
                                     @foreach ($clStatuses as $k => $lbl)<option value="{{ $k }}" @selected($it->status===$k)>{{ __('app.'.$lbl) }}</option>@endforeach</select>
                             </form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <input name="evidence" value="{{ $it->evidence }}" placeholder="—" class="acn-inline-input" onchange="this.form.submit()"></form>
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <input name="evidence" value="{{ $it->evidence }}" placeholder="—" class="acn-inline-input" onchange="this.form.requestSubmit()"></form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('checklist.update', $it) }}">@csrf @method('PATCH')
-                                <select name="approved_by" class="acn-inline-select" onchange="this.form.submit()"><option value="">—</option>
+                            <form method="POST" action="{{ route('checklist.update', $it) }}" class="acn-ajax">@csrf @method('PATCH')
+                                <select name="approved_by" class="acn-inline-select" onchange="this.form.requestSubmit()"><option value="">—</option>
                                     @foreach ($managers as $u)<option value="{{ $u->id }}" @selected($it->approved_by==$u->id)>{{ $u->name }}</option>@endforeach</select>
                             </form>
                         </div>

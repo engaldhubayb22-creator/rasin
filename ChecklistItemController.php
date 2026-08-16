@@ -69,7 +69,7 @@ class ChecklistItemController extends Controller
         return back()->with('success', __('app.cl_created'));
     }
 
-    public function update(Request $request, ChecklistItem $checklistItem): RedirectResponse
+    public function update(Request $request, ChecklistItem $checklistItem): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $data = $this->validated($request, true);
         $data['is_mandatory'] = $request->has('is_mandatory') ? $request->boolean('is_mandatory') : $checklistItem->is_mandatory;
@@ -80,6 +80,15 @@ class ChecklistItemController extends Controller
         }
 
         $checklistItem->update($data);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'status' => $checklistItem->status,
+                'status_class' => $checklistItem->statusClass(),
+                'actual_date' => optional($checklistItem->actual_date)->format('Y-m-d'),
+            ]);
+        }
 
         return back()->with('success', __('app.cl_updated'));
     }

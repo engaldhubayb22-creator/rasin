@@ -89,13 +89,13 @@
 
     {{-- الفلاتر --}}
     <form method="GET" class="acn-toolbar">
-        <select name="project_id" onchange="this.form.submit()"><option value="">{{ __('app.all_projects') }}</option>
+        <select name="project_id" onchange="this.form.requestSubmit()"><option value="">{{ __('app.all_projects') }}</option>
             @foreach ($projects as $p)<option value="{{ $p->id }}" @selected(($filters['project_id'] ?? '')==$p->id)>{{ $p->name }}</option>@endforeach</select>
-        <select name="department" onchange="this.form.submit()"><option value="">{{ __('app.all_departments') }}</option>
+        <select name="department" onchange="this.form.requestSubmit()"><option value="">{{ __('app.all_departments') }}</option>
             @foreach ($departments as $k => $lbl)<option value="{{ $k }}" @selected(($filters['department'] ?? '')==$k)>{{ __('app.'.$lbl) }}</option>@endforeach</select>
-        <select name="status" onchange="this.form.submit()"><option value="">{{ __('app.all_statuses') }}</option>
+        <select name="status" onchange="this.form.requestSubmit()"><option value="">{{ __('app.all_statuses') }}</option>
             @foreach ($statuses as $k => $lbl)<option value="{{ $k }}" @selected(($filters['status'] ?? '')==$k)>{{ __('app.'.$lbl) }}</option>@endforeach</select>
-        <select name="assigned_to" onchange="this.form.submit()"><option value="">{{ __('app.all_responsible') }}</option>
+        <select name="assigned_to" onchange="this.form.requestSubmit()"><option value="">{{ __('app.all_responsible') }}</option>
             @foreach ($users as $u)<option value="{{ $u->id }}" @selected(($filters['assigned_to'] ?? '')==$u->id)>{{ $u->name }}</option>@endforeach</select>
         @if (array_filter($filters))<a href="{{ route('requirements.index') }}" class="acn-clear">✕ {{ __('app.clear') }}</a>@endif
     </form>
@@ -154,18 +154,18 @@
                             @if ($r->note)<div class="acn-notes">{{ $r->note }}</div>@endif
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('requirements.update', $r) }}">
+                            <form method="POST" action="{{ route('requirements.update', $r) }}" class="acn-ajax">
                                 @csrf @method('PATCH')<input type="hidden" name="title" value="{{ $r->title }}">
-                                <select name="department" class="acn-inline-select" onchange="this.form.submit()">
+                                <select name="department" class="acn-inline-select" onchange="this.form.requestSubmit()">
                                     <option value="">—</option>
                                     @foreach ($departments as $k => $lbl)<option value="{{ $k }}" @selected($r->department===$k)>{{ __('app.'.$lbl) }}</option>@endforeach
                                 </select>
                             </form>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('requirements.update', $r) }}">
+                            <form method="POST" action="{{ route('requirements.update', $r) }}" class="acn-ajax">
                                 @csrf @method('PATCH')<input type="hidden" name="title" value="{{ $r->title }}">
-                                <select name="assigned_to" class="acn-inline-select" onchange="this.form.submit()">
+                                <select name="assigned_to" class="acn-inline-select" onchange="this.form.requestSubmit()">
                                     <option value="">{{ __('app.unassigned') }}</option>
                                     @foreach ($users as $u)<option value="{{ $u->id }}" @selected($r->assigned_to==$u->id)>{{ $u->name }}</option>@endforeach
                                 </select>
@@ -175,9 +175,9 @@
                             <span class="acn-inline-date {{ $r->isOverdue() ? 'overdue' : '' }}">{{ $date($r->due_date) }}</span>
                         </div>
                         <div>
-                            <form method="POST" action="{{ route('requirements.update', $r) }}">
+                            <form method="POST" action="{{ route('requirements.update', $r) }}" class="acn-ajax">
                                 @csrf @method('PATCH')<input type="hidden" name="title" value="{{ $r->title }}">
-                                <select name="status" class="acn-inline-select acn-status-select {{ $sClass[$r->status] ?? '' }}" onchange="this.form.submit()">
+                                <select name="status" class="acn-inline-select acn-status-select {{ $sClass[$r->status] ?? '' }}" onchange="this.form.requestSubmit()">
                                     @foreach ($statuses as $k => $lbl)<option value="{{ $k }}" @selected($r->status===$k)>{{ __('app.'.$lbl) }}</option>@endforeach
                                 </select>
                             </form>

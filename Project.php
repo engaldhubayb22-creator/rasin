@@ -138,7 +138,12 @@ class Project extends Model
         return $this->hasMany(ChecklistItem::class)->orderBy('order')->orderBy('id');
     }
 
-    /** توليد بنود التشك لست من القالب الموحّد (لا يكرّر لو موجودة) */
+    /**
+     * توليد بنود التشك لست من قالب الإدارة (جدول checklist_template_items).
+     * القالب يُزرع من ملف الإعداد أول مرة، ثم تُحرّره الإدارة من صفحتها.
+     * بعد التوليد يصبح لكل مشروع نسخته المستقلة القابلة للتعديل.
+     * لا يُكرّر البنود إذا كانت موجودة (إلا مع reset).
+     */
     public function generateChecklist(bool $reset = false): int
     {
         if ($reset) {
@@ -147,20 +152,21 @@ class Project extends Model
             return 0;
         }
 
+        \App\Models\ChecklistTemplateItem::ensureSeeded();
+
         $order = 0;
         $created = 0;
-        foreach (config('checklist_template.phases', []) as $phase => $items) {
-            foreach ($items as [$title, $mandatory]) {
-                $order += 10;
-                $this->checklistItems()->create([
-                    'phase' => $phase,
-                    'title' => $title,
-                    'is_mandatory' => $mandatory,
-                    'status' => 'not_started',
-                    'order' => $order,
-                ]);
-                $created++;
-            }
+        $template = \App\Models\ChecklistTemplateItem::orderBy('order')->orderBy('id')->get();
+        foreach ($template as $tpl) {
+            $order += 10;
+            $this->checklistItems()->create([
+                'phase' => $tpl->phase,
+                'title' => $tpl->title,
+                'is_mandatory' => $tpl->is_mandatory,
+                'status' => 'not_started',
+                'order' => $order,
+            ]);
+            $created++;
         }
 
         return $created;
