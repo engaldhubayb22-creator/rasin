@@ -57,9 +57,13 @@ class RequirementController extends Controller
         return back()->with('success', __('app.req_created'));
     }
 
-    public function update(Request $request, Requirement $requirement): RedirectResponse
+    public function update(Request $request, Requirement $requirement): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $requirement->update($this->validated($request, true));
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'status' => $requirement->status]);
+        }
 
         return back()->with('success', __('app.req_updated'));
     }

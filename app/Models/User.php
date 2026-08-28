@@ -103,11 +103,50 @@ class User extends Authenticatable
 
     public function canSeeFinance(): bool
     {
-        return $this->hasRole([self::ROLE_ADMIN, self::ROLE_EXECUTIVE, self::ROLE_FINANCE]);
+        return $this->can('finance.view');
     }
 
     public function canSeeReports(): bool
     {
-        return $this->hasRole([self::ROLE_ADMIN, self::ROLE_EXECUTIVE, self::ROLE_PM, self::ROLE_FINANCE]);
+        return $this->can('reports.view');
+    }
+
+    // ===== نظام الصلاحيات (module.action) =====
+
+    /** ذاكرة مؤقتة لصلاحيات الدور خلال الطلب */
+    protected ?array $permCache = null;
+
+    /** كل صلاحيات دور المستخدم (admin يملك الكل) */
+    public function permissions(): array
+    {
+        if ($this->role === self::ROLE_ADMIN) {
+            return RolePermission::catalog();
+        }
+
+        if ($this->permCache === null) {
+            $this->permCache = RolePermission::where('role', $this->role)
+                ->pluck('permission')->all();
+        }
+
+        return $this->permCache;
+    }
+
+    /** هل يملك صلاحية معيّنة؟ (admin دائماً نعم) */
+    public function can($permission, $arguments = []): bool
+    {
+        if (! is_string($permission)) {
+            return parent::can($permission, $arguments);
+        }
+
+        if ($this->role === self::ROLE_ADMIN) {
+            return true;
+        }
+
+        return in_array($permission, $this->permissions(), true);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->can($permission);
     }
 }

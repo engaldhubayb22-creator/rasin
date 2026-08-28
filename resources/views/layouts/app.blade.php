@@ -24,6 +24,10 @@
         body { font-family: 'Cairo', sans-serif; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        #acn-toast{position:fixed;bottom:20px;inset-inline-start:20px;background:#2e7d32;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.15);opacity:0;transform:translateY(10px);transition:.2s;z-index:60;pointer-events:none}
+        #acn-toast.show{opacity:1;transform:none}
+        #acn-toast.err{background:#c62828}
+        form.acn-ajax.saving{opacity:.55}
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
@@ -65,6 +69,8 @@
                     'settings' => '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
                     'clipboard' => '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>',
                     'check' => '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-5.5 7.5l1.5 1.5 3-3"/></svg>',
+                    'approve' => '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                    'blueprint' => '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a2 2 0 012-2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 3v6h6M8 13h5M8 17h8"/></svg>',
                 ];
                 $projActive = str_starts_with($r ?? '', 'projects') || str_starts_with($r ?? '', 'tasks') || str_starts_with($r ?? '', 'activities') || str_starts_with($r ?? '', 'budget') || str_starts_with($r ?? '', 'members');
             @endphp
@@ -75,6 +81,15 @@
             {!! $link(route('requirements.index'), __('app.requirements'), $ic['clipboard'], str_starts_with($r ?? '', 'requirements')) !!}
             {!! $link(route('checklist.center'), __('app.checklist_center'), $ic['check'], str_starts_with($r ?? '', 'checklist')) !!}
             {!! $link(route('projects.index'), __('app.projects'), $ic['projects'], $projActive) !!}
+            @if ($user && $user->hasPermission('drawings.view'))
+                {!! $link(route('drawings.index'), __('app.drawings'), $ic['blueprint'], str_starts_with($r ?? '', 'drawings')) !!}
+            @endif
+            @if ($user && $user->hasPermission('procurement.view'))
+                {!! $link(route('procurement.index'), __('app.procurement'), $ic['cart'], str_starts_with($r ?? '', 'procurement')) !!}
+            @endif
+            @if ($user && $user->hasPermission('approvals.view'))
+                {!! $link(route('approvals.index'), __('app.approvals'), $ic['approve'], str_starts_with($r ?? '', 'approvals')) !!}
+            @endif
             @if ($user && $user->canSeeFinance())
                 {!! $link(route('finance'), __('app.finance'), $ic['finance'], $r === 'finance') !!}
             @endif
@@ -82,12 +97,24 @@
                 {!! $link(route('reports'), __('app.reports'), $ic['reports'], $r === 'reports') !!}
             @endif
 
+            {{-- قسم الإدارة (المدير فقط) --}}
+            @if ($user && ($user->isAdmin() || $user->hasPermission('users.manage')))
+            <div class="pt-3 mt-2 border-t border-white/10">
+                <div class="px-3 pb-1 text-[10px] uppercase tracking-wide text-slate-400/70">{{ __('app.administration') }}</div>
+                @if ($user->hasPermission('users.manage'))
+                    {!! $link(route('users.index'), __('app.users_roles'), $ic['admin'], str_starts_with($r ?? '', 'users')) !!}
+                @endif
+                @if ($user->isAdmin())
+                    {!! $link(route('admin.checklist-template.index'), __('app.admin_checklist_template'), $ic['check'], str_starts_with($r ?? '', 'admin.checklist')) !!}
+                @endif
+            </div>
+            @endif
+
             {{-- وحدات مخفية خلف مفاتيح التشغيل (config/features.php) --}}
-            @php $anyModule = config('features.procurement') || config('features.contracts') || config('features.administration') || config('features.settings'); @endphp
+            @php $anyModule = config('features.contracts') || config('features.administration') || config('features.settings'); @endphp
             @if ($anyModule)
             <div class="pt-3 mt-2 border-t border-white/10">
                 <div class="px-3 pb-1 text-[10px] uppercase tracking-wide text-slate-400/70">{{ __('app.modules') }}</div>
-                @if (config('features.procurement')) {!! $soon(__('app.procurement'), $ic['cart']) !!} @endif
                 @if (config('features.contracts')) {!! $soon(__('app.contracts'), $ic['contracts']) !!} @endif
                 @if (config('features.administration')) {!! $soon(__('app.administration'), $ic['admin']) !!} @endif
                 @if (config('features.settings')) {!! $soon(__('app.settings'), $ic['settings']) !!} @endif
@@ -155,6 +182,54 @@
         document.getElementById('sidebar').classList.toggle('{{ $hideSide }}');
         document.getElementById('overlay').classList.toggle('hidden');
     }
+
+    /* حفظ فوري (AJAX) لأي نموذج يحمل class="acn-ajax" — بدون مغادرة الصفحة */
+    (function () {
+        var meta = document.querySelector('meta[name=csrf-token]');
+        var SMAP = { not_started:'s-pending', in_progress:'s-in_progress', pending_approval:'s-urgent', completed:'s-completed', not_applicable:'s-cancelled', urgent:'s-urgent', pending:'s-pending', open:'s-pending', done:'s-completed' };
+        var SAVED = @json(__('app.saved'));
+        var FAILED = @json(__('app.save_failed'));
+
+        function toast(msg, ok) {
+            var t = document.getElementById('acn-toast');
+            if (!t) { t = document.createElement('div'); t.id = 'acn-toast'; document.body.appendChild(t); }
+            t.textContent = msg;
+            t.className = 'show' + (ok ? '' : ' err');
+            clearTimeout(t._h);
+            t._h = setTimeout(function () { t.className = ''; }, 1600);
+        }
+        window.acnToast = toast;
+
+        document.addEventListener('submit', function (e) {
+            var f = e.target;
+            if (!f.classList || !f.classList.contains('acn-ajax')) return;
+            e.preventDefault();
+            f.classList.add('saving');
+            fetch(f.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': meta ? meta.content : ''
+                },
+                body: new FormData(f)
+            })
+            .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+            .then(function (d) {
+                var sel = f.querySelector('select[name=status]');
+                if (sel) {
+                    var cls = (d && d.status_class) || SMAP[sel.value] || 's-pending';
+                    sel.className = sel.className.replace(/\bs-[a-z_]+\b/g, '').replace(/\s+/g, ' ').trim();
+                    sel.classList.add(cls);
+                }
+                var act = f.querySelector('input[name=actual_date]');
+                if (act && d && d.actual_date && !act.value) act.value = d.actual_date;
+                toast(SAVED, true);
+            })
+            .catch(function () { toast(FAILED, false); })
+            .finally(function () { f.classList.remove('saving'); });
+        });
+    })();
 </script>
 @stack('scripts')
 </body>
