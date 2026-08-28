@@ -79,8 +79,8 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // بيانات مشروع HV الحقيقية + وحدات الاعتمادات/المخططات/التوريد
-        $this->call(HvProjectSeeder::class);
+        // بيانات مشروع HV الحقيقية من ملف التحكم الرسمي (Excel)
+        $this->call(HvRealSeeder::class);
     }
 
     private function seedWorkspace(Project $project, User $pm, User $eng): void
