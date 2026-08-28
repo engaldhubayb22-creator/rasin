@@ -1,18 +1,24 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminChecklistTemplateController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BudgetItemController;
 use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DrawingController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\ProcurementController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RequirementController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\ScheduleVersionController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -89,6 +95,38 @@ Route::middleware('auth')->group(function () {
     Route::get('projects/{project}/schedule/{version}/gantt', [ScheduleVersionController::class, 'gantt'])->name('schedule.gantt');
     Route::post('projects/{project}/schedule/{version}/decide', [ScheduleVersionController::class, 'decide'])->name('schedule.decide');
     Route::delete('projects/{project}/schedule/{version}', [ScheduleVersionController::class, 'destroy'])->name('schedule.destroy');
+
+    // ===== الاعتمادات (مسار اعتماد متعدد الخطوات) =====
+    Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+    Route::post('/approvals', [ApprovalController::class, 'store'])->name('approvals.store');
+    Route::post('/approvals/{approval}/act', [ApprovalController::class, 'act'])->name('approvals.act');
+    Route::delete('/approvals/{approval}', [ApprovalController::class, 'destroy'])->name('approvals.destroy');
+
+    // ===== المخططات (سجل المخططات) =====
+    Route::get('/drawings', [DrawingController::class, 'index'])->name('drawings.index');
+    Route::post('/drawings', [DrawingController::class, 'store'])->name('drawings.store');
+    Route::patch('/drawings/{drawing}', [DrawingController::class, 'update'])->name('drawings.update');
+    Route::delete('/drawings/{drawing}', [DrawingController::class, 'destroy'])->name('drawings.destroy');
+
+    // ===== مواعيد التوريد (مربوطة بالجدول الزمني) =====
+    Route::get('/procurement', [ProcurementController::class, 'index'])->name('procurement.index');
+    Route::post('/procurement', [ProcurementController::class, 'store'])->name('procurement.store');
+    Route::patch('/procurement/{procurementItem}', [ProcurementController::class, 'update'])->name('procurement.update');
+    Route::delete('/procurement/{procurementItem}', [ProcurementController::class, 'destroy'])->name('procurement.destroy');
+
+    // ===== المستخدمون والأدوار والصلاحيات (users.manage) =====
+    Route::get('/admin/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
+    Route::patch('/admin/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/admin/role-permissions/toggle', [RolePermissionController::class, 'toggle'])->name('role-permissions.toggle');
+
+    // ===== الإدارة (المدير فقط) — قالب التشك لست الموحّد =====
+    Route::get('/admin/checklist-template', [AdminChecklistTemplateController::class, 'index'])->name('admin.checklist-template.index');
+    Route::post('/admin/checklist-template', [AdminChecklistTemplateController::class, 'store'])->name('admin.checklist-template.store');
+    Route::patch('/admin/checklist-template/{templateItem}', [AdminChecklistTemplateController::class, 'update'])->name('admin.checklist-template.update');
+    Route::delete('/admin/checklist-template/{templateItem}', [AdminChecklistTemplateController::class, 'destroy'])->name('admin.checklist-template.destroy');
+    Route::post('/admin/checklist-template/reset', [AdminChecklistTemplateController::class, 'reset'])->name('admin.checklist-template.reset');
 
     /*
     |----------------------------------------------------------------------
