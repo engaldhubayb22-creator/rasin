@@ -78,6 +78,9 @@ class DatabaseSeeder extends Seeder
                 $this->seedWorkspace($project, $pm, $eng);
             }
         }
+
+        // بيانات مشروع HV الحقيقية + وحدات الاعتمادات/المخططات/التوريد
+        $this->call(HvProjectSeeder::class);
     }
 
     private function seedWorkspace(Project $project, User $pm, User $eng): void

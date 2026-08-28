@@ -138,6 +138,21 @@ class Project extends Model
         return $this->hasMany(ChecklistItem::class)->orderBy('order')->orderBy('id');
     }
 
+    public function drawings(): HasMany
+    {
+        return $this->hasMany(Drawing::class)->orderBy('order')->orderBy('id');
+    }
+
+    public function procurementItems(): HasMany
+    {
+        return $this->hasMany(ProcurementItem::class)->orderBy('order')->orderBy('id');
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(Approval::class)->orderBy('order')->orderBy('id');
+    }
+
     /**
      * توليد بنود التشك لست من قالب الإدارة (جدول checklist_template_items).
      * القالب يُزرع من ملف الإعداد أول مرة، ثم تُحرّره الإدارة من صفحتها.
