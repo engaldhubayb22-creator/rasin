@@ -21,10 +21,18 @@ class ProcurementItem extends Model
         ];
     }
 
-    /** الأيام المتبقية حتى آخر موعد لاختيار العينة */
+    /** الأيام المتبقية حتى آخر موعد لاختيار العينة (موجب = مازال في المستقبل) */
     public function daysLeft(): int
     {
-        return Carbon::today()->diffInDays($this->select_by, false);
+        if (! $this->select_by) {
+            return 0;
+        }
+
+        // حساب بالطوابع الزمنية — مستقل عن اختلاف إصدارات Carbon (2/3)
+        $target = Carbon::parse($this->select_by)->startOfDay()->getTimestamp();
+        $today = Carbon::today()->getTimestamp();
+
+        return intdiv($target - $today, 86400);
     }
 
     /** مستوى التنبيه: overdue/critical/warning/on_plan */
