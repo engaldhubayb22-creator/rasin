@@ -13,6 +13,7 @@ use App\Http\Controllers\ProcurementController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\ScheduleTrackerController;
 use App\Http\Controllers\ScheduleVersionController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\ProjectController;
@@ -71,6 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
+    // متتبّع الجدول الزمني (شبكة بريمافيرا القابلة للتعديل)
+    Route::get('projects/{project}/schedule-tracker', [ScheduleTrackerController::class, 'index'])->name('schedule.tracker');
     Route::post('projects/{project}/activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::patch('activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
     Route::delete('activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
