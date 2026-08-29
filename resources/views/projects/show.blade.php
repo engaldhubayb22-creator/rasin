@@ -159,6 +159,16 @@
 
 {{-- ==================== الجدول الزمني (نسخ) ==================== --}}
 <div data-panel="schedule" class="tab-panel hidden">
+    <a href="{{ route('schedule.tracker', $project) }}" class="flex items-center justify-between gap-3 mb-5 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4 hover:bg-brand-100 transition">
+        <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-brand-700 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+            <div>
+                <div class="font-bold text-brand-900">{{ __('app.schedule_tracker') }}</div>
+                <div class="text-xs text-brand-700/70">{{ __('app.schedule_tracker_sub') }} — {{ $project->activities->count() }} {{ __('app.trk_activities') }}</div>
+            </div>
+        </div>
+        <span class="text-brand-700 font-semibold text-sm">{{ __('app.open') }} →</span>
+    </a>
     <div class="grid lg:grid-cols-3 gap-5">
         {{-- رفع نسخة --}}
         <div class="bg-white rounded-xl border border-slate-200 p-5">
